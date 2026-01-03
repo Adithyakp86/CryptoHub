@@ -5,7 +5,11 @@ function Login({ loginWithRedirect }) {
 
   return (
     <button
-      onClick={() => loginWithRedirect()}
+      onClick={() => loginWithRedirect({
+        authorizationParams: {
+          redirect_uri: window.location.origin + "/callback",
+        },
+      })}
       className="login-btn"
     >
       <span>Log In</span>

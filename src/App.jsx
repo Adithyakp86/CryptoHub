@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Navbar from "./components/Navbar";
+import Callback from "./pages/Callback";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Coin from "./pages/Home/Coin/Coin";
@@ -33,6 +34,7 @@ const App = () => {
         <Route path="/blog/:id" element={<BlogDetail />} />
 
         <Route path="/features" element={<Features />} />
+        <Route path="/callback" element={<Callback />} />
       </Routes>
       <Footer />
     </div>

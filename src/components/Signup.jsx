@@ -5,7 +5,12 @@ function Signup({ loginWithRedirect }) {
 
   return (
     <button
-      onClick={() => loginWithRedirect({ screen_hint: "signup" })}
+      onClick={() => loginWithRedirect({ 
+        authorizationParams: {
+          screen_hint: "signup",
+          redirect_uri: window.location.origin + "/callback",
+        }, 
+      })}
       className="signup-btn"
     >
       <span>Sign Up</span>
