@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./Home.css";
 import { CoinContext } from "../../context/CoinContext";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { FiFilter } from "react-icons/fi";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
 const Home = () => {
@@ -9,29 +10,48 @@ const Home = () => {
   const [displayCoin, setDisplayCoin] = useState([]);
   const [input, setInput] = useState("");
   const [visibleCount, setVisibleCount] = useState(10);
-  
-  const inputHandler = (event) => {
-    setInput(event.target.value);
-    if (event.target.value === "") {
-      setDisplayCoin(allCoin);
-    }
+  const [showFilters, setShowFilters] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  const inputHandler = (e) => {
+    setInput(e.target.value);
+    if (e.target.value === "") setDisplayCoin(allCoin);
   };
 
-  const searchHandler = async (event) => {
-    event.preventDefault();
-    const coins = await allCoin.filter((item) => {
-      return item.name.toLowerCase().includes(input.toLowerCase());
-    });
-    setDisplayCoin(coins);
+  const searchHandler = (e) => {
+    e.preventDefault();
+    setDisplayCoin(
+      allCoin.filter((item) =>
+        item.name.toLowerCase().includes(input.toLowerCase())
+      )
+    );
+  };
+
+  const applyFilters = () => {
+    let filtered = [...allCoin];
+
+    if (minPrice)
+      filtered = filtered.filter(
+        (coin) => coin.current_price >= Number(minPrice)
+      );
+
+    if (maxPrice)
+      filtered = filtered.filter(
+        (coin) => coin.current_price <= Number(maxPrice)
+      );
+
+    setDisplayCoin(filtered);
+    setShowFilters(false);
+  };
+
+  const loadMoreHandler = () => {
+    setVisibleCount(prev => prev + 5);
   };
 
   useEffect(() => {
     setDisplayCoin(allCoin);
   }, [allCoin]);
-
-  const loadMoreHandler = () => {
-    setVisibleCount(prev => prev + 5);
-  };
 
   // Show loading spinner if data is loading
   if (isLoading && allCoin.length === 0) {
@@ -42,21 +62,31 @@ const Home = () => {
           <p data-aos="fade-in" className="hero-sub">
             Welcome to CryptoHub — your gateway to real-time prices, trending coins, and powerful analytics. Search any coin and start exploring the world of crypto!
           </p>
-          <form data-aos="zoom-in" className="hero-form" onSubmit={searchHandler} autoComplete="off">
-            <input
-              onChange={inputHandler}
-              list="coinlist"
-              value={input}
-              type="text"
-              placeholder="Search for a coin..."
-              required
-              disabled={isLoading}
-            />
-            <datalist id="coinlist">
-              {allCoin && allCoin.map((item, index) => (<option key={index} value={item.name} />))}
-            </datalist>
-            <button type="submit" disabled={isLoading}>Search</button>
-          </form>
+          <div className="search-wrapper">
+            <form className="hero-form" onSubmit={searchHandler} autoComplete="off">
+              <input
+                onChange={inputHandler}
+                list="coinlist"
+                value={input}
+                type="text"
+                placeholder="Search for a coin..."
+                required
+                disabled={isLoading}
+              />
+              <datalist id="coinlist">
+                {allCoin && allCoin.map((item, index) => (<option key={index} value={item.name} />))}
+              </datalist>
+              <button type="submit" disabled={isLoading}>Search</button>
+              <button
+                type="button"
+                className="filter-btn"
+                onClick={() => setShowFilters(!showFilters)}
+                disabled={isLoading}
+              >
+                <FiFilter size={20} />
+              </button>
+            </form>
+          </div>
         </div>
         <div className="loading-container">
           <LoadingSpinner />
@@ -70,23 +100,70 @@ const Home = () => {
       <div className="hero">
         <h1 data-aos="fade-in" className="hero-title">Discover & Track Crypto Instantly</h1>
         <p data-aos="fade-in" className="hero-sub">
-          Welcome to CryptoHub — your gateway to real-time prices, trending coins, and powerful analytics. Search any coin and start exploring the world of crypto!
+          Welcome to CryptoHub — your gateway to real-time prices, trending coins, and powerful analytics.
         </p>
-        <form data-aos="zoom-in" className="hero-form" onSubmit={searchHandler} autoComplete="off">
-          <input
-            onChange={inputHandler}
-            list="coinlist"
-            value={input}
-            type="text"
-            placeholder="Search for a coin..."
-            required
-            disabled={isLoading}
-          />
-          <datalist id="coinlist">
-            {allCoin && allCoin.map((item, index) => (<option key={index} value={item.name} />))}
-          </datalist>
-          <button type="submit" disabled={isLoading}>Search</button>
-        </form>
+
+        <div className="search-wrapper">
+          <form className="hero-form" onSubmit={searchHandler}>
+            <input
+              value={input}
+              onChange={inputHandler}
+              list="coinlist"
+              placeholder="Search for a coin..."
+              required
+              disabled={isLoading}
+            />
+
+            <datalist id="coinlist">
+              {allCoin?.map((c, i) => (
+                <option key={i} value={c.name} />
+              ))}
+            </datalist>
+
+            <button type="submit" disabled={isLoading}>Search</button>
+
+            <button
+              type="button"
+              className="filter-btn"
+              onClick={() => setShowFilters(!showFilters)}
+              disabled={isLoading}
+            >
+              <FiFilter size={20} />
+            </button>
+          </form>
+
+          {showFilters && (
+            <div className="filter-panel right">
+              <div className="filter-group">
+                <label>Min Price</label>
+                <input
+                  type="number"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+              </div>
+
+              <div className="filter-group">
+                <label>Max Price</label>
+                <input
+                  type="number"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+
+              <div className="filter-actions">
+                <button onClick={applyFilters}>Apply</button>
+                <button
+                  className="reset"
+                  onClick={() => setShowFilters(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
       {isLoading && allCoin.length > 0 ? (
@@ -103,11 +180,12 @@ const Home = () => {
             <p style={{ textAlign: "center" }}>24h Change</p>
             <p className="market-cap">Market Cap</p>
           </div>
+          
           {displayCoin.slice(0, visibleCount).map((item, index) => (
             <Link
               to={`/coin/${item.id}`}
               className="table-layout"
-              key={index} 
+              key={index}
               data-aos="fade-up"
             >
               <p>{item.market_cap_rank}</p>
@@ -130,6 +208,7 @@ const Home = () => {
               </p>
             </Link>
           ))}
+          
           {/* LOAD MORE BUTTON */}
           {visibleCount < displayCoin.length && (
             <div className="load-more">
