@@ -838,8 +838,7 @@ export class PreferencesManager {
     const prefs = this.getAll();
     return key.split('.').reduce((obj, k) => obj?.[k], prefs);
   }
-  
-  /**
+/**
    * Sets a preference
    * @param {string} key - Preference key
    * @param {*} value - Preference value
@@ -851,14 +850,29 @@ export class PreferencesManager {
     let current = prefs;
     
     for (let i = 0; i < keys.length - 1; i++) {
-      if (!current[keys[i]]) current[keys[i]] = {};
-      current = current[keys[i]];
+      const keyPart = keys[i];
+
+      // SECURITY FIX: Prevent Prototype Pollution
+      if (keyPart === '__proto__' || keyPart === 'constructor' || keyPart === 'prototype') {
+        console.warn('Security Warning: Attempted prototype pollution blocked.');
+        return false;
+      }
+
+      if (!current[keyPart]) current[keyPart] = {};
+      current = current[keyPart];
     }
     
-    current[keys[keys.length - 1]] = value;
+    const finalKey = keys[keys.length - 1];
+
+    // SECURITY FIX: Check the final key as well
+    if (finalKey === '__proto__' || finalKey === 'constructor' || finalKey === 'prototype') {
+      console.warn('Security Warning: Attempted prototype pollution blocked.');
+      return false;
+    }
+
+    current[finalKey] = value;
     return this.storage.set(this.key, prefs);
   }
-  
   /**
    * Sets multiple preferences
    * @param {Object} preferences - Preferences to set
