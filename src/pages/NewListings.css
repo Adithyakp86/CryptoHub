@@ -356,6 +356,40 @@
   color: #fff;
 }
 
+.nl-col-price.positive {
+  color: #22c55e !important;
+}
+
+.nl-col-price.negative {
+  color: #ef4444 !important;
+}
+
+.nl-col-price.neutral {
+  color: #ffffff !important;
+}
+
+/* More specific rules to ensure color overrides other table styles */
+.nl-table-row .nl-col-price.positive {
+  color: #22c55e !important;
+}
+.nl-table-row .nl-col-price.negative {
+  color: #ef4444 !important;
+}
+.nl-table-row .nl-col-price.neutral {
+  color: #ffffff !important;
+}
+
+/* Ensure change column colors also override when needed */
+.nl-table-row .nl-col-change.positive {
+  color: #22c55e !important;
+}
+.nl-table-row .nl-col-change.negative {
+  color: #ef4444 !important;
+}
+.nl-table-row .nl-col-change.neutral {
+  color: #ffffff !important;
+}
+
 .nl-col-change {
   display: flex;
   align-items: center;
@@ -365,11 +399,11 @@
 }
 
 .nl-col-change.positive {
-  color: #22c55e;
+  color: #22c55e !important;
 }
 
 .nl-col-change.negative {
-  color: #ef4444;
+  color: #ef4444 !important;
 }
 
 .nl-col-volume,

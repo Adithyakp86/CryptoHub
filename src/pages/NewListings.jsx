@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -78,39 +78,43 @@ const NewListings = () => {
   });
 
   // Sorting logic
-  const sortedCoins = [...newCoins].sort((a, b) => {
+  const sortedCoins = useMemo(() => {
+    if (!newCoins || newCoins.length === 0) return [];
+    const copy = [...newCoins];
     switch (sortBy) {
       case "newest":
-        return new Date(b.atl_date) - new Date(a.atl_date);
+        return copy.sort((a, b) => new Date(b.atl_date) - new Date(a.atl_date));
       case "price_high":
-        return b.current_price - a.current_price;
+        return copy.sort((a, b) => b.current_price - a.current_price);
       case "price_low":
-        return a.current_price - b.current_price;
+        return copy.sort((a, b) => a.current_price - b.current_price);
       case "change_high":
-        return (
-          (b.price_change_percentage_24h || 0) -
-          (a.price_change_percentage_24h || 0)
+        return copy.sort(
+          (a, b) => (b.price_change_percentage_24h || 0) - (a.price_change_percentage_24h || 0)
         );
       case "volume":
-        return (b.total_volume || 0) - (a.total_volume || 0);
+        return copy.sort((a, b) => (b.total_volume || 0) - (a.total_volume || 0));
       default:
-        return 0;
+        return copy;
     }
-  });
+  }, [newCoins, sortBy]);
 
-  // Pagination
-  const totalPages = Math.ceil(sortedCoins.length / itemsPerPage);
-  const currentCoins = sortedCoins.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+  // Pagination (memoized)
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(sortedCoins.length / itemsPerPage)), [sortedCoins.length]);
+  const currentCoins = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return sortedCoins.slice(start, start + itemsPerPage);
+  }, [sortedCoins, currentPage, itemsPerPage]);
+
+  const handlePageChange = useCallback(
+    (newPage) => {
+      if (newPage >= 1 && newPage <= totalPages) {
+        setCurrentPage(newPage);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+    [totalPages]
   );
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
@@ -138,6 +142,54 @@ const NewListings = () => {
     if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K`;
     return num.toLocaleString();
   };
+
+  // Memoized row component to reduce re-renders
+  const CoinRow = useCallback(
+    React.memo(({ coin, index }) => {
+      const changeVal = Number(coin.price_change_percentage_24h) || 0;
+      const changeClass = changeVal > 0 ? "positive" : changeVal < 0 ? "negative" : "neutral";
+      const changeSign = changeVal > 0 ? "+" : "";
+      return (
+        <motion.div
+          key={coin.id}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.03 }}
+        >
+          <Link to={`/coin/${coin.id}`} className="nl-table-row">
+            <div className="nl-col-rank">{(currentPage - 1) * itemsPerPage + index + 1}</div>
+            <div className="nl-col-name">
+              <img src={coin.image} alt={coin.name} className="nl-coin-icon" />
+              <div className="nl-coin-info">
+                <span className="nl-coin-symbol">{coin.symbol.toUpperCase()}</span>
+                <span className="nl-coin-fullname">{coin.name}</span>
+              </div>
+            </div>
+            <div className={`nl-col-price ${changeClass}`}>
+              {currency.Symbol || currency.symbol}
+              {coin.current_price < 0.01 ? coin.current_price.toFixed(6) : coin.current_price.toLocaleString()}
+            </div>
+            <div className={`nl-col-change ${changeClass}`}>
+              {changeVal > 0 ? <FiArrowUpRight /> : <FiArrowDownRight />}
+              {changeSign}{Math.abs(changeVal).toFixed(2)}%
+            </div>
+            <div className="nl-col-volume">
+              {currency.Symbol || currency.symbol}
+              {formatNumber(coin.total_volume)}
+            </div>
+            <div className="nl-col-mcap">
+              {currency.Symbol || currency.symbol}
+              {formatNumber(coin.market_cap)}
+            </div>
+            <div className="nl-col-date">
+              <span className="date-badge">{formatDate(coin.atl_date)}</span>
+            </div>
+          </Link>
+        </motion.div>
+      );
+    }),
+    [currency, currentPage, itemsPerPage]
+  );
 
   return (
     <div className="new-listings-container">
@@ -259,70 +311,7 @@ const NewListings = () => {
             <div className="nl-table-body">
               {currentCoins.length > 0 ? (
                 currentCoins.map((coin, index) => (
-                  <motion.div
-                    key={coin.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.03 }}
-                  >
-                    <Link
-                      to={`/coin/${coin.id}`}
-                      className="nl-table-row"
-                    >
-                      <div className="nl-col-rank">
-                        {(currentPage - 1) * itemsPerPage + index + 1}
-                      </div>
-                      <div className="nl-col-name">
-                        <img
-                          src={coin.image}
-                          alt={coin.name}
-                          className="nl-coin-icon"
-                        />
-                        <div className="nl-coin-info">
-                          <span className="nl-coin-symbol">
-                            {coin.symbol.toUpperCase()}
-                          </span>
-                          <span className="nl-coin-fullname">{coin.name}</span>
-                        </div>
-                      </div>
-                      <div className="nl-col-price">
-                        {currency.Symbol || currency.symbol}
-                        {coin.current_price < 0.01
-                          ? coin.current_price.toFixed(6)
-                          : coin.current_price.toLocaleString()}
-                      </div>
-                      <div
-                        className={`nl-col-change ${
-                          (coin.price_change_percentage_24h || 0) > 0
-                            ? "positive"
-                            : "negative"
-                        }`}
-                      >
-                        {(coin.price_change_percentage_24h || 0) > 0 ? (
-                          <FiArrowUpRight />
-                        ) : (
-                          <FiArrowDownRight />
-                        )}
-                        {Math.abs(
-                          coin.price_change_percentage_24h || 0
-                        ).toFixed(2)}
-                        %
-                      </div>
-                      <div className="nl-col-volume">
-                        {currency.Symbol || currency.symbol}
-                        {formatNumber(coin.total_volume)}
-                      </div>
-                      <div className="nl-col-mcap">
-                        {currency.Symbol || currency.symbol}
-                        {formatNumber(coin.market_cap)}
-                      </div>
-                      <div className="nl-col-date">
-                        <span className="date-badge">
-                          {formatDate(coin.atl_date)}
-                        </span>
-                      </div>
-                    </Link>
-                  </motion.div>
+                  <CoinRow key={coin.id} coin={coin} index={index} />
                 ))
               ) : (
                 <div className="nl-empty">
