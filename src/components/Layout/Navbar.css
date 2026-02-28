@@ -319,8 +319,9 @@
 }
 
 .logo-img {
-  height: 88px;
-  width: auto;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   object-fit: contain;
   filter: drop-shadow(0 0 6px rgba(0, 243, 255, 0.8)) drop-shadow(0 0 12px rgba(176, 38, 255, 0.4));
   transition: all 0.4s var(--transition-smooth);
@@ -329,6 +330,12 @@
 .navbar-logo:hover .logo-img {
   transform: scale(1.1);
   filter: drop-shadow(0 0 8px rgba(0, 243, 255, 1)) drop-shadow(0 0 16px rgba(176, 38, 255, 0.6));
+}
+
+.logo-text {
+  display: inline-block;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Desktop Navigation Menu */
