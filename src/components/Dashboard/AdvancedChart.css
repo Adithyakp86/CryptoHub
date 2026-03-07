@@ -1,0 +1,204 @@
+/* Advanced Chart Styling */
+
+.advanced-chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Indicator Controls */
+.indicator-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.indicator-controls.dark {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.indicator-controls.light {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #00d9ff;
+  margin-bottom: 4px;
+}
+
+.control-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.indicator-controls.dark .control-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.indicator-controls.light .control-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.control-item input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: #00d9ff;
+}
+
+.control-item span {
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.indicator-controls.dark .control-item span {
+  color: #d1d5db;
+}
+
+.indicator-controls.light .control-item span {
+  color: #374151;
+}
+
+.control-item:hover span {
+  color: #00d9ff;
+}
+
+/* Chart Wrapper */
+.chart-wrapper {
+  position: relative;
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+/* Info Panel */
+.chart-info-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chart-info-panel.dark {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.chart-info-panel.light {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.info-item {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.chart-info-panel.dark .info-item {
+  color: #d1d5db;
+}
+
+.chart-info-panel.light .info-item {
+  color: #374151;
+}
+
+.info-label {
+  font-weight: 600;
+  flex-shrink: 0;
+  color: #00d9ff;
+  min-width: 80px;
+}
+
+.info-text {
+  color: inherit;
+}
+
+/* Loading State */
+.advanced-chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .indicator-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-info-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .control-items {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .control-item {
+    flex: 0 0 calc(50% - 4px);
+  }
+}
+
+@media (max-width: 480px) {
+  .advanced-chart-container {
+    gap: 12px;
+  }
+
+  .indicator-controls {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .chart-wrapper {
+    padding: 12px;
+  }
+
+  .chart-info-panel {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .info-item {
+    font-size: 12px;
+  }
+}

@@ -2,18 +2,22 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./CoinDetail.css";
 import { CoinContext } from "../../../context/CoinContextInstance";
+import { useTheme } from "../../../context/useTheme";
 import LineChart from "../../../components/Dashboard/LineChart";
+import AdvancedChart from "../../../components/Dashboard/AdvancedChart";
 import NewsPanel from "../../../components/Dashboard/NewsPanel";
 import { useWatchlist } from "../../../context/WatchlistContext";
 
 const Coin = () => {
   const { coinId } = useParams();
   const navigate = useNavigate();
+  const { isDark } = useTheme();
   const [coindata, setCoinData] = useState(null);
   const [historicaldata, setHistoricalData] = useState(null);
   const [coinLoading, setCoinLoading] = useState(true);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [timeframe, setTimeframe] = useState("7"); // Default 7 days
+  const [chartMode, setChartMode] = useState("advanced"); // "basic" or "advanced"
   const { currency } = useContext(CoinContext);
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
 
@@ -212,22 +216,66 @@ const Coin = () => {
           <div className="coin-card coin-chart-card">
             <div className="coin-chart-top">
               <span className="coin-card-title">Price Chart</span>
-              <div className="timeframe-selector">
-                {[{ label: "7d", val: "7" }, { label: "14d", val: "14" }, { label: "30d", val: "30" }].map(
-                  ({ label, val }) => (
-                    <button
-                      key={val}
-                      className={`timeframe-btn ${timeframe === val ? "active" : ""}`}
-                      onClick={() => setTimeframe(val)}
-                    >
-                      {label}
-                    </button>
-                  )
-                )}
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div className="timeframe-selector">
+                  {[{ label: "7d", val: "7" }, { label: "14d", val: "14" }, { label: "30d", val: "30" }].map(
+                    ({ label, val }) => (
+                      <button
+                        key={val}
+                        className={`timeframe-btn ${timeframe === val ? "active" : ""}`}
+                        onClick={() => setTimeframe(val)}
+                      >
+                        {label}
+                      </button>
+                    )
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: "6px", borderLeft: "1px solid rgba(255,255,255,0.1)", paddingLeft: "12px" }}>
+                  <button
+                    className={`chart-mode-btn ${chartMode === "basic" ? "active" : ""}`}
+                    onClick={() => setChartMode("basic")}
+                    title="Basic Chart"
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid rgba(0,217,255,0.3)",
+                      background: chartMode === "basic" ? "rgba(0,217,255,0.2)" : "transparent",
+                      color: chartMode === "basic" ? "#00d9ff" : "#9ca3af",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: "500",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Basic
+                  </button>
+                  <button
+                    className={`chart-mode-btn ${chartMode === "advanced" ? "active" : ""}`}
+                    onClick={() => setChartMode("advanced")}
+                    title="Advanced Technical Indicators"
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid rgba(0,217,255,0.3)",
+                      background: chartMode === "advanced" ? "rgba(0,217,255,0.2)" : "transparent",
+                      color: chartMode === "advanced" ? "#00d9ff" : "#9ca3af",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: "500",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    Advanced
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="coin-chart">
-              <LineChart historicaldata={historicaldata} />
+            <div className={`coin-chart ${chartMode === "advanced" ? "coin-chart--advanced" : ""}`}>
+              {chartMode === "advanced" ? (
+                <AdvancedChart historicaldata={historicaldata} isDark={isDark} />
+              ) : (
+                <LineChart historicaldata={historicaldata} />
+              )}
             </div>
           </div>
 

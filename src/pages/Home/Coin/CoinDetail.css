@@ -309,6 +309,11 @@
   height: 280px;
 }
 
+.coin-chart.coin-chart--advanced {
+  height: auto;
+  min-height: 280px;
+}
+
 /* ---------- Price range card ---------- */
 .price-range-card {
   padding: 20px 24px;
