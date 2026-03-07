@@ -32,25 +32,25 @@ const Features = () => {
   // Helper to get current coin object
   const currentCoin = topCoins.find(c => c.id === selectedCoin) || topCoins[0];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `https://api.coingecko.com/api/v3/coins/${selectedCoin}/market_chart?vs_currency=inr&days=${days}`
-        );
-        const data = await res.json();
-        setPrices(data.prices || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setPrices([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+  const fetchData = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://api.coingecko.com/api/v3/coins/${selectedCoin}/market_chart?vs_currency=inr&days=${days}`
+      );
+      const data = await res.json();
+      setPrices(data.prices || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setPrices([]);
+    } finally {
+      setLoading(false);
+    }
   }, [selectedCoin, days]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const chartData = {
     labels: prices.map((price) =>
